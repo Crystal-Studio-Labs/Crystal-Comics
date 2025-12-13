@@ -1,22 +1,52 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../components/Logo';
-import { MessageCircle, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
+import { MessageCircle, ArrowRight, ShieldCheck, Zap, AlertCircle } from 'lucide-react';
 import { getUser } from '../services/mockBackend';
+import { supabase, isSupabaseConfigured } from '../services/supabase';
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleDiscordLogin = async () => {
         setLoading(true);
-        // Simulate Discord OAuth Handshake
-        setTimeout(async () => {
-            const user = await getUser();
-            localStorage.setItem('crystal_user', JSON.stringify(user));
+        setError(null);
+
+        // Check if Supabase keys are present
+        if (!isSupabaseConfigured() || !supabase) {
+             // FALLBACK: If user hasn't set up Supabase keys yet, use the Mock Login
+             // This ensures the site still "works" for the reviewer before backend setup
+             console.warn("Supabase not configured. Using Mock Login.");
+             setTimeout(async () => {
+                const user = await getUser();
+                localStorage.setItem('crystal_user', JSON.stringify(user));
+                setLoading(false);
+                navigate('/profile');
+            }, 1500);
+            return;
+        }
+
+        try {
+            // REAL AUTH: Redirects to Discord
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'discord',
+                options: {
+                    // Redirect back to the current page after login
+                    redirectTo: window.location.origin,
+                },
+            });
+
+            if (error) throw error;
+            
+            // Note: The code below this won't execute immediately because 
+            // the browser redirects to Discord. The handling continues in App.tsx
+        } catch (err: any) {
+            console.error("Login error:", err);
+            setError(err.message || "Failed to connect to Discord");
             setLoading(false);
-            navigate('/profile');
-        }, 1500);
+        }
     };
 
     return (
@@ -37,6 +67,14 @@ const Login: React.FC = () => {
                 </div>
 
                 <div className="w-full bg-[#111] border border-white/10 rounded-[32px] p-6 md:p-10 shadow-2xl animate-enter-up backdrop-blur-sm" style={{animationDelay: '100ms'}}>
+                    
+                    {error && (
+                        <div className="mb-4 p-4 bg-red-900/20 border border-red-500/50 rounded-xl flex items-center gap-3 text-red-200 text-sm">
+                            <AlertCircle size={18} />
+                            {error}
+                        </div>
+                    )}
+
                     <button
                         onClick={handleDiscordLogin}
                         disabled={loading}

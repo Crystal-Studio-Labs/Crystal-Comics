@@ -1,5 +1,5 @@
-import React from 'react';
-import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { HashRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import FloatingDock from './components/FloatingDock';
 import Home from './pages/Home';
 import Explore from './pages/Explore';
@@ -12,6 +12,9 @@ import Login from './pages/Login';
 import Admin from './pages/Admin';
 import Logo from './components/Logo';
 import Footer from './components/Footer';
+import { supabase } from './services/supabase';
+import { MOCK_USER } from './services/mockBackend';
+import { User } from './types';
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -19,6 +22,59 @@ const ScrollToTop = () => {
     window.scrollTo(0, 0);
   }, [pathname]);
   return null;
+};
+
+// Component to handle Auth State Changes
+const AuthHandler = () => {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!supabase) return;
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_IN' && session?.user) {
+                // User just logged in via Discord. 
+                // We need to map Supabase data to our App's User format
+                // and save it to localStorage so the MockBackend continues to work.
+                
+                const discordIdentity = session.user.identities?.find(id => id.provider === 'discord');
+                const discordData = discordIdentity?.identity_data;
+
+                // Create a "Hybrid" user combining Real Auth data with our App structure
+                const existingData = localStorage.getItem('crystal_user');
+                const prevUser = existingData ? JSON.parse(existingData) : MOCK_USER;
+
+                const newUser: User = {
+                    ...prevUser, // Keep existing XP/Bookmarks if they exist locally
+                    id: session.user.id,
+                    username: discordData?.full_name || discordData?.name || session.user.email?.split('@')[0] || 'Hunter',
+                    avatarUrl: discordData?.avatar_url || discordData?.picture || prevUser.avatarUrl,
+                    email: session.user.email,
+                    discriminator: '0000', // Discord removed discriminators, using placeholder
+                    discord: {
+                        connected: true,
+                        username: discordData?.name,
+                        id: discordIdentity?.id,
+                        roles: [] // We would fetch real roles here if we had a backend bot
+                    }
+                };
+
+                localStorage.setItem('crystal_user', JSON.stringify(newUser));
+                
+                // If we are on the login page, go to profile
+                if (window.location.hash.includes('login')) {
+                    navigate('/profile');
+                }
+            } else if (event === 'SIGNED_OUT') {
+                localStorage.removeItem('crystal_user');
+                navigate('/login');
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, [navigate]);
+
+    return null;
 };
 
 const AppContent: React.FC = () => {
@@ -31,6 +87,7 @@ const AppContent: React.FC = () => {
     return (
         <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-purple-500/30 flex flex-col">
             <ScrollToTop />
+            <AuthHandler />
             
             {/* Top Navigation Overlay (Logo) */}
             {!hideNav && (
