@@ -273,33 +273,66 @@ export const getUser = async (): Promise<User> => {
     return getStorageUser();
 }
 
-export const syncDiscordStatus = async (user: User): Promise<User> => {
-    await new Promise(resolve => setTimeout(resolve, 1000)); 
+/**
+ * Updates the user profile and synchronizes roles based on:
+ * 1. Subscription Tier (e.g., Knight -> 'Crystal Knight' role)
+ * 2. Achievements (e.g., 'Veteran' role)
+ */
+export const updateUserProfile = async (user: User): Promise<User> => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 300));
 
-    const mockDiscordRoles = ['Member'];
-    if (Math.random() > 0.5) mockDiscordRoles.push('Server Booster');
-    if (Math.random() > 0.8) mockDiscordRoles.push('Crystal VIP');
+    // Calculate Roles
+    const roles = new Set(user.discord.roles || []);
 
-    const updatedUser = { ...user };
-    updatedUser.discord = {
-        connected: true,
-        username: `${user.username}#${user.discriminator}`,
-        id: '123456789',
-        roles: mockDiscordRoles
+    // Remove old tier roles to ensure accuracy
+    roles.delete('Crystal Knight');
+    roles.delete('Sovereign');
+
+    // Add roles based on current subscription
+    if (user.subscriptionTier === 'Knight') {
+        roles.add('Crystal Knight');
+    } else if (user.subscriptionTier === 'Sovereign') {
+        roles.add('Crystal Knight'); // Sovereign includes Knight perks
+        roles.add('Sovereign');
+    }
+
+    // Add roles based on achievements (Mock Logic)
+    if (user.achievements.some(a => a.id === '1' && a.unlockedAt)) {
+        roles.add('Veteran');
+    }
+    if (user.level >= 50) {
+        roles.add('Ascended');
+    }
+
+    const updatedUser = {
+        ...user,
+        discord: {
+            ...user.discord,
+            roles: Array.from(roles)
+        }
     };
-
-    if (mockDiscordRoles.includes('Server Booster')) {
-        updatedUser.subscriptionTier = 'Knight';
-        updatedUser.xp = Math.min(updatedUser.xp + 500, updatedUser.maxXp);
-    }
-    
-    if (mockDiscordRoles.includes('Crystal VIP')) {
-        updatedUser.subscriptionTier = 'Sovereign';
-        updatedUser.rank = 'National Level Hunter';
-    }
 
     setStorageUser(updatedUser);
     return updatedUser;
+};
+
+export const syncDiscordStatus = async (user: User): Promise<User> => {
+    await new Promise(resolve => setTimeout(resolve, 1000)); 
+
+    // This simulates fetching fresh data from Discord
+    // For now, we just ensure the user is 'connected' and run the role calculator
+    const tempUser = { 
+        ...user,
+        discord: {
+            ...user.discord,
+            connected: true,
+            username: user.discord.username || `${user.username}#${user.discriminator}`,
+            id: user.discord.id || '123456789',
+        }
+    };
+
+    return updateUserProfile(tempUser);
 };
 
 export const getChapterImages = async (mangaId: string, chapterId: string, quality?: 'HD' | 'SD'): Promise<string[]> => {

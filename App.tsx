@@ -13,7 +13,7 @@ import Admin from './pages/Admin';
 import Logo from './components/Logo';
 import Footer from './components/Footer';
 import { supabase } from './services/supabase';
-import { MOCK_USER } from './services/mockBackend';
+import { MOCK_USER, updateUserProfile } from './services/mockBackend';
 import { User } from './types';
 
 const ScrollToTop = () => {
@@ -44,22 +44,23 @@ const AuthHandler = () => {
                 const existingData = localStorage.getItem('crystal_user');
                 const prevUser = existingData ? JSON.parse(existingData) : MOCK_USER;
 
-                const newUser: User = {
+                let newUser: User = {
                     ...prevUser, // Keep existing XP/Bookmarks if they exist locally
                     id: session.user.id,
                     username: discordData?.full_name || discordData?.name || session.user.email?.split('@')[0] || 'Hunter',
                     avatarUrl: discordData?.avatar_url || discordData?.picture || prevUser.avatarUrl,
                     email: session.user.email,
-                    discriminator: '0000', // Discord removed discriminators, using placeholder
+                    discriminator: '0000', 
                     discord: {
                         connected: true,
                         username: discordData?.name,
                         id: discordIdentity?.id,
-                        roles: [] // We would fetch real roles here if we had a backend bot
+                        roles: [] 
                     }
                 };
 
-                localStorage.setItem('crystal_user', JSON.stringify(newUser));
+                // Run the role calculator to assign default roles based on tier/stats
+                newUser = await updateUserProfile(newUser);
                 
                 // If we are on the login page, go to profile
                 if (window.location.hash.includes('login')) {

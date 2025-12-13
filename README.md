@@ -10,36 +10,15 @@ Next-generation manga and manhwa reading platform featuring a premium "crystal-g
     *   **XP System**: Earn experience by reading chapters.
     *   **Ranks**: Progression from Squire to Knight to Sovereign.
     *   **Subscription Tiers**: Visual distinction for free vs premium users.
+    *   **Discord Integration**: Auto-assign roles (e.g., "Crystal Knight") based on subscription status.
     *   **Stats**: RPG-style stats visualization (STR, INT, CHA, VIT).
-*   **Discord Integration**: Log in via Discord using Supabase Auth to sync avatars and usernames.
-*   **Content Discovery**:
-    *   Cinematic Hero Carousel.
-    *   Trending & Latest Updates sections.
-    *   Search and Filter exploration page.
-*   **Library Management**: Bookmark series and track reading history automatically.
-*   **Admin Dashboard**: Manage manga series (Create, Read, Update, Delete) and view site stats.
-*   **Responsive**: Fully optimized mobile navigation with a floating dock.
-
-## 🛠️ Tech Stack
-
-*   **Frontend**: React 18, TypeScript, Vite
-*   **Styling**: Tailwind CSS, Lucide React (Icons)
-*   **Routing**: React Router DOM
-*   **Authentication**: Supabase Auth (Discord OAuth)
-*   **Data**: Mock Backend Service (Simulating API calls with LocalStorage persistence)
+*   **Content Discovery**: Cinematic Hero Carousel, Trending, Search and Filter.
+*   **Library Management**: Bookmark series and track reading history.
+*   **Admin Dashboard**: Manage content.
 
 ## 🚀 Getting Started
 
-Follow these steps to set up the project locally.
-
-### 1. Prerequisites
-
-*   Node.js (v16 or higher)
-*   npm
-
-### 2. Installation
-
-Clone the repository and install dependencies:
+### 1. Installation
 
 ```bash
 git clone https://github.com/yourusername/crystal-scans.git
@@ -47,62 +26,52 @@ cd crystal-scans
 npm install
 ```
 
-### 3. Environment Setup (Supabase)
+### 2. Discord Authentication Setup (Important)
 
-To enable real Discord authentication, you need to configure Supabase.
+To enable the "Login with Discord" feature, you must configure Supabase and Discord properly.
 
-1.  **Create a Supabase Project**: Go to [Supabase](https://supabase.com/) and create a new project.
-2.  **Enable Discord Auth**:
-    *   In Supabase Dashboard, go to **Authentication** > **Providers**.
-    *   Enable **Discord**.
-    *   You will need a Client ID and Secret from the [Discord Developer Portal](https://discord.com/developers/applications).
-    *   **Important**: Copy the "Callback URL" from Supabase and paste it into your Discord App's "Redirects" section.
-3.  **Configure Environment Variables**:
-    *   Copy `.env.example` to a new file named `.env`:
-        ```bash
-        cp .env.example .env
-        ```
-    *   Fill in your Supabase credentials:
-        ```env
-        VITE_SUPABASE_URL=your_project_url
-        VITE_SUPABASE_ANON_KEY=your_anon_key
-        ```
+**Step A: Supabase**
+1.  Go to [Supabase](https://supabase.com) and create a new project.
+2.  Navigate to **Authentication** -> **Providers**.
+3.  Enable **Discord**.
+4.  Copy the **Callback URL** (it looks like `https://<your-project>.supabase.co/auth/v1/callback`).
 
-> **Note**: If you do not configure Supabase, the app includes a fallback "Mock Login" that simulates a login after a short delay so you can still test the UI.
+**Step B: Discord Developer Portal**
+1.  Go to [Discord Developer Portal](https://discord.com/developers/applications).
+2.  Click **New Application** and name it (e.g., "CrystalScans").
+3.  Go to the **OAuth2** tab in the sidebar.
+4.  Under **Redirects**, click **Add Redirect** and paste the **Callback URL** from Supabase.
+5.  **Important**: Copy the **Client ID** and **Client Secret** (you may need to reset the secret to see it).
 
-### 4. Running the App
+**Step C: Connect Them**
+1.  Go back to Supabase -> Authentication -> Providers -> Discord.
+2.  Paste the **Client ID** and **Client Secret**.
+3.  Click Save.
 
-Start the development server:
+**Step D: Local Environment**
+1.  Create a `.env` file in your project root:
+    ```bash
+    VITE_SUPABASE_URL=your_supabase_project_url
+    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+    ```
+2.  Start the app: `npm run dev`
 
-```bash
-npm run dev
-```
+### 3. Role System
 
-Open your browser and navigate to `http://localhost:5173`.
+The app simulates a role sync system.
+*   **Sovereign**: Upgrading to the Sovereign tier assigns the "Sovereign" and "Crystal Knight" roles.
+*   **Knight**: Upgrading to Knight assigns the "Crystal Knight" role.
+*   **Achievements**: Unlocking specific achievements (like "Early Adopter") assigns special roles (e.g., "Veteran").
 
-## 📦 Deployment on Vercel
+You can view these roles in the **Profile -> Settings** tab after logging in.
 
-1.  Push your code to a GitHub repository.
-2.  Go to [Vercel](https://vercel.com/) and "Add New Project".
-3.  Import your repository.
-4.  **Crucial Step**: In the Vercel Project Settings, go to **Environment Variables** and add:
-    *   `VITE_SUPABASE_URL`
-    *   `VITE_SUPABASE_ANON_KEY`
-5.  Click **Deploy**.
+## 🛠️ Tech Stack
 
-## 🛡️ Admin & Permissions
-
-The application uses a **Mock Backend** for data persistence (stored in your browser's LocalStorage).
-
-*   **Admin Access**: The default mock user or the first user logged in is usually treated as a standard user. To test Admin features:
-    1.  Log in.
-    2.  Open your browser DevTools (F12) -> Application -> Local Storage.
-    3.  Find `crystal_user`.
-    4.  Edit the JSON object: change `"role": "User"` to `"role": "Admin"`.
-    5.  Refresh the page. You will now see the "Admin Panel" tab in the Profile page.
-
-*   **Premium Features**: Similarly, you can edit `"subscriptionTier"` in LocalStorage to `"Knight"` or `"Sovereign"` to unlock HD quality and premium badges.
+*   **Frontend**: React 18, TypeScript, Vite
+*   **Styling**: Tailwind CSS, Lucide React
+*   **Auth**: Supabase (Discord OAuth)
+*   **State**: LocalStorage Mock Backend
 
 ## 📄 License
 
-This project is created for educational and demonstration purposes.
+Educational purpose only.

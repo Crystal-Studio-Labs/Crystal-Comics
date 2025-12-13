@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Sword, Shield, Brain, Sparkles, Crown, Zap, Settings, LogOut, Bell, Award, Layout, ChevronRight, Edit2, X, CreditCard, Check, RefreshCw, Mail, Lock, Unlock, HelpCircle, Moon, Sun, Code, LayoutDashboard } from 'lucide-react';
 import { User, SubscriptionTier } from '../types';
 import { useNavigate, Link } from 'react-router-dom';
-import { syncDiscordStatus } from '../services/mockBackend';
+import { updateUserProfile, syncDiscordStatus } from '../services/mockBackend';
 
 const iconMap: Record<string, any> = {
     Sword, Shield, Brain, Sparkles, Award, Zap, Heart: Award, MessageSquare: Layout, Moon, Sun, Code
@@ -54,11 +54,11 @@ const Profile: React.FC = () => {
         }
     };
 
-    const handleSaveProfile = () => {
+    const handleSaveProfile = async () => {
         if (user) {
-            const updatedUser = { ...user, username: editUsername, avatarUrl: editAvatar };
+            const tempUser = { ...user, username: editUsername, avatarUrl: editAvatar };
+            const updatedUser = await updateUserProfile(tempUser);
             setUser(updatedUser);
-            localStorage.setItem('crystal_user', JSON.stringify(updatedUser));
             setIsEditing(false);
         }
     };
@@ -181,6 +181,16 @@ const Profile: React.FC = () => {
                                               <div className="text-xs text-gray-500">
                                                   {user.discord.connected ? `Connected as ${user.discord.username}` : 'Sync roles and reading status'}
                                               </div>
+                                              {/* Display Active Roles */}
+                                              {user.discord.roles && user.discord.roles.length > 0 && (
+                                                  <div className="flex flex-wrap gap-1 mt-2">
+                                                      {user.discord.roles.map(role => (
+                                                          <span key={role} className="text-[10px] px-2 py-0.5 rounded bg-[#5865F2]/30 text-blue-200 border border-[#5865F2]/30">
+                                                              {role}
+                                                          </span>
+                                                      ))}
+                                                  </div>
+                                              )}
                                           </div>
                                       </div>
                                       <button 

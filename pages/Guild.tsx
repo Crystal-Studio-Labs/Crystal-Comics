@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, X, Shield, Crown, Sword, Star } from 'lucide-react';
 import { User, SubscriptionTier } from '../types';
+import { updateUserProfile } from '../services/mockBackend';
 
 const Guild: React.FC = () => {
     const [user, setUser] = useState<User | null>(null);
@@ -13,16 +14,18 @@ const Guild: React.FC = () => {
         }
     }, []);
 
-    const handleUpgrade = (tier: SubscriptionTier) => {
+    const handleUpgrade = async (tier: SubscriptionTier) => {
         setUpgradeLoading(tier);
-        setTimeout(() => {
-            if (user) {
-                const updatedUser = { ...user, subscriptionTier: tier };
-                setUser(updatedUser);
-                localStorage.setItem('crystal_user', JSON.stringify(updatedUser));
-            }
-            setUpgradeLoading(null);
-        }, 1500);
+        if (user) {
+            // Update tier in local state
+            const tempUser = { ...user, subscriptionTier: tier };
+            
+            // Run through backend service to sync roles and save
+            const finalUser = await updateUserProfile(tempUser);
+            
+            setUser(finalUser);
+        }
+        setUpgradeLoading(null);
     };
 
     const currentTier = user?.subscriptionTier || 'Squire';
