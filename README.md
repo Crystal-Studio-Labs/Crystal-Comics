@@ -48,13 +48,18 @@ To enable the "Login with Discord" feature, you must configure Supabase and Disc
 2.  Paste the **Client ID** and **Client Secret**.
 3.  Click Save.
 
-**Step D: Local Environment**
-1.  Create a `.env` file in your project root:
+**Step D: Local Environment (Get your Keys)**
+1.  **Find your keys in Supabase:**
+    *   In your Supabase project dashboard, click on **Settings** (the cog/gear icon at the bottom of the left sidebar).
+    *   Select **API** from the list.
+    *   Look for the **Project URL** box. This is your `VITE_SUPABASE_URL`.
+    *   Look for the **Project API keys** box. Copy the key labeled `anon` (public). This is your `VITE_SUPABASE_ANON_KEY`.
+2.  Create a `.env` file in your project root:
     ```bash
-    VITE_SUPABASE_URL=your_supabase_project_url
-    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+    VITE_SUPABASE_URL=https://your-project-id.supabase.co
+    VITE_SUPABASE_ANON_KEY=your-long-anon-key-string
     ```
-2.  Start the app: `npm run dev`
+3.  Start the app: `npm run dev`
 
 ### 3. Role System
 
