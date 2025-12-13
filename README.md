@@ -8,7 +8,7 @@ A premium manga/manhwa reading platform with Supabase Authentication and Discord
 
 ## 🛠️ Critical Setup Guide
 
-To ensure the **Authentication works correctly** and does NOT redirect to localhost, and to get the **Discord Bot working**, follow these exact steps.
+To ensure the **Authentication works correctly** and the **Discord Bot works**, follow these exact steps.
 
 ### Phase 1: Supabase Configuration (Fixes Redirects)
 
@@ -35,37 +35,38 @@ To ensure the **Authentication works correctly** and does NOT redirect to localh
 
 ### Phase 2: Discord Bot Setup (Role Sync)
 
-This app uses **Serverless Edge Functions** to assign roles. The bot does not need to be running on a server to assign roles, but it needs permissions.
+Your Discord Server ID: `1449337912503046178`
+Invite Link: `https://discord.gg/73ttFzMMSd`
+
+This app uses **Serverless Edge Functions** for paid tiers and a **Node.js Bot** for auto-roles.
 
 1.  **Bot Permissions**:
     *   Discord Dev Portal -> **Bot**.
-    *   Reset Token -> Copy it.
+    *   **Enable "Server Members Intent"** (Required for detecting new members).
     *   Go to **OAuth2** -> **URL Generator**.
     *   Scopes: `bot`.
     *   Permissions: `Manage Roles`.
-    *   Invite the bot to your server.
+    *   **Important**: Invite the bot to your server.
 2.  **Server Hierarchy (Crucial)**:
     *   In Discord Server Settings -> **Roles**.
-    *   **Drag the "Crystal Bot" role ABOVE the roles you want it to assign** (e.g., above "Knight" or "Sovereign").
+    *   **Drag the "Crystal Bot" role ABOVE the roles you want it to assign** (e.g., above "Member", "Knight", "Sovereign").
     *   *If the bot is below the role, it will fail with a 403 Forbidden error.*
-3.  **Deploy Function**:
-    *   Install CLI: `npm install -g supabase`
-    *   Login: `supabase login`
-    *   Link: `supabase link --project-ref your-project-id`
-    *   Set Secret: `supabase secrets set DISCORD_BOT_TOKEN=your_token_here`
-    *   Deploy: `supabase functions deploy discord-role-sync`
-4.  **Update Config**:
-    *   Edit `services/discordConfig.ts`.
-    *   Replace `YOUR_GUILD_ID_HERE` with your Discord Server ID.
-    *   Replace `ROLE_ID_HERE` with your actual Role IDs.
+3.  **Deploy Function (For Subscriptions)**:
+    *   `supabase functions deploy discord-role-sync`
+    *   `supabase secrets set DISCORD_BOT_TOKEN=your_token_here`
+4.  **Update Config (For Subscriptions)**:
+    *   Open `services/discordConfig.ts`.
+    *   **Action Required**: Replace `"ROLE_ID_HERE"` with real Role IDs.
+    *   *How to get IDs*: Enable Developer Mode in Discord (User Settings -> Advanced), then Right Click a Role -> Copy ID.
 
-### Phase 3: Making the Bot "Online" (Optional)
+### Phase 3: Auto-Role on Join (Basic Role)
 
-The Edge Function handles logic, so the bot works even if offline. However, if you want the **Green Dot** status:
+To automatically give people a role (e.g., "Member") when they join:
 
-1.  We have included a script `bot/keep-alive.js`.
-2.  Host this script on a service like Railway, Heroku, or a VPS.
-3.  Command: `DISCORD_BOT_TOKEN=your_token npm run bot`.
+1.  Create a `.env` file in the root folder.
+2.  Add your Bot Token: `DISCORD_BOT_TOKEN=your_token_here`
+3.  Add the Basic Role ID: `DISCORD_BASIC_ROLE_ID=123456789...` (Copy this ID from Discord).
+4.  Run: `npm run bot`
 
 ---
 
@@ -84,12 +85,14 @@ npm run dev
 ```env
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
+DISCORD_BOT_TOKEN=your_bot_token 
+DISCORD_BASIC_ROLE_ID=your_role_id_for_new_members
 ```
 
 ## 🔍 Troubleshooting
 
-**Login redirects to localhost?**
-Check Phase 1, Step 4. Ensure `https://crystal-comics.vercel.app` is in the Redirect URLs list in Supabase.
-
 **Bot fails to assign role?**
 Check Phase 2, Step 2. The Bot's role MUST be visually higher in the list than the role it is trying to give.
+
+**"Privileged Intent" Error?**
+Go to Discord Developer Portal -> Bot -> Toggle "Server Members Intent" to ON.

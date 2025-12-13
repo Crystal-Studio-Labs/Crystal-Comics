@@ -4,18 +4,23 @@ import { supabase } from './supabase';
 // YOU MUST UPDATE THESE VALUES WITH YOUR REAL SERVER DATA FROM DISCORD
 export const DISCORD_CONFIG = {
     // The ID of the specific server where roles will be assigned
-    OFFICIAL_GUILD_ID: "YOUR_GUILD_ID_HERE", 
+    OFFICIAL_GUILD_ID: "1449337912503046178", 
     OFFICIAL_GUILD_NAME: "CrystalScans Official",
     
     // Links to join if not in the server
-    INVITE_URL: "https://discord.gg/crystalscans",
+    INVITE_URL: "https://discord.gg/73ttFzMMSd",
 
     // Map Subscription Tiers to Role IDs (Right-Click Role in Discord -> Copy ID)
+    // NOTE: Replace "ROLE_ID_HERE" with the 18-digit ID from your Discord Server Settings
     ROLES: {
-        TIER_SOVEREIGN: "ROLE_ID_HERE",
+        // The role given automatically when someone joins the server (handled by bot/keep-alive.js)
+        BASIC_MEMBER: "ROLE_ID_HERE", 
+
+        // Subscription Tiers
         TIER_KNIGHT: "ROLE_ID_HERE",
+        TIER_SOVEREIGN: "ROLE_ID_HERE",
         
-        // Map Achievement IDs to Role IDs
+        // Achievements
         ACHIEVEMENT_VETERAN: "ROLE_ID_HERE",
         ACHIEVEMENT_Ascended: "ROLE_ID_HERE"
     }
@@ -32,8 +37,8 @@ export const syncRolesWithBot = async (discordUserId: string, roleIdsToAdd: stri
     }
 
     // Validation: Check if the developer has updated the placeholder IDs
-    if (guildId === "YOUR_GUILD_ID_HERE" || roleIdsToAdd.some(id => id === "ROLE_ID_HERE")) {
-        console.warn("[Bot Sync] Config placeholders detected. Please update services/discordConfig.ts with real IDs.");
+    if (roleIdsToAdd.some(id => id === "ROLE_ID_HERE")) {
+        console.warn("[Bot Sync] Role ID placeholders detected. Please update services/discordConfig.ts with real Role IDs.");
         return false;
     }
 
@@ -50,7 +55,8 @@ export const syncRolesWithBot = async (discordUserId: string, roleIdsToAdd: stri
 
         if (error) {
             console.error('[Bot Sync] Edge Function Error:', error);
-            return true; // Return true to avoid breaking UI flow even if bot fails
+            // We return true to not block the UI if the bot fails (e.g. hierarchy issues)
+            return true; 
         }
 
         console.log('[Bot Sync] Response:', data);
