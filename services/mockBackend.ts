@@ -310,9 +310,10 @@ export const updateUserProfile = async (user: User): Promise<User> => {
         displayRoles.push('Ascended');
     }
 
-    // 3. Sync with "Official Server" via Mock Bot
-    if (user.discord.connected) {
-        await syncRolesWithBot(user.id, roleIdsToSync, DISCORD_CONFIG.OFFICIAL_GUILD_ID);
+    // 3. Sync with "Official Server" via Real Bot
+    // Critical Fix: Pass user.discord.id (the snowflake) not user.id (the app uuid)
+    if (user.discord.connected && user.discord.id) {
+        await syncRolesWithBot(user.discord.id, roleIdsToSync, DISCORD_CONFIG.OFFICIAL_GUILD_ID);
     }
 
     const updatedUser = {

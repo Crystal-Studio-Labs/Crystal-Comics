@@ -62,8 +62,10 @@ const AuthHandler = () => {
                 // Run the role calculator to assign default roles based on tier/stats
                 newUser = await updateUserProfile(newUser);
                 
-                // If we are on the login page, go to profile
-                if (window.location.hash.includes('login')) {
+                // Redirect user to Profile after login if they are on Login page or Home page
+                // We check hash because HashRouter is used
+                const hashPath = window.location.hash.replace('#', '');
+                if (hashPath === '/login' || hashPath === '/' || hashPath === '') {
                     navigate('/profile');
                 }
             } else if (event === 'SIGNED_OUT') {

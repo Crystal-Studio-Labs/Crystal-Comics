@@ -29,19 +29,25 @@ const Login: React.FC = () => {
         }
 
         try {
+            // Determine Redirect URL
+            // In production, force the vercel URL to ensure Supabase redirects correctly
+            // In development, use localhost
+            const productionUrl = 'https://crystal-comics.vercel.app';
+            const redirectUrl = import.meta.env.PROD ? productionUrl : window.location.origin;
+
+            console.log(`[Auth] Initiating login. Redirect target: ${redirectUrl}`);
+
             // REAL AUTH: Redirects to Discord
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'discord',
                 options: {
-                    // Redirect back to the current page after login
-                    redirectTo: window.location.origin,
+                    redirectTo: redirectUrl,
                 },
             });
 
             if (error) throw error;
             
-            // Note: The code below this won't execute immediately because 
-            // the browser redirects to Discord. The handling continues in App.tsx
+            // The browser will redirect to Discord, so execution stops here.
         } catch (err: any) {
             console.error("Login error:", err);
             setError(err.message || "Failed to connect to Discord");
@@ -51,7 +57,7 @@ const Login: React.FC = () => {
 
     return (
         <div className="min-h-[100dvh] bg-[#050505] flex items-center justify-center relative overflow-hidden p-6 md:p-12">
-            {/* Ambient Background - Adjusted opacity for mobile */}
+            {/* Ambient Background */}
             <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] bg-purple-900/10 blur-[80px] md:blur-[120px] rounded-full" />
             <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] bg-blue-900/10 blur-[80px] md:blur-[120px] rounded-full" />
             
