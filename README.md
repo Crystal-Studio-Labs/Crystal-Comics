@@ -61,14 +61,54 @@ To enable the "Login with Discord" feature, you must configure Supabase and Disc
     ```
 3.  Start the app: `npm run dev`
 
-### 3. Role System
+### 3. Role System & "Official Server" Sync
 
-The app simulates a role sync system.
-*   **Sovereign**: Upgrading to the Sovereign tier assigns the "Sovereign" and "Crystal Knight" roles.
-*   **Knight**: Upgrading to Knight assigns the "Crystal Knight" role.
-*   **Achievements**: Unlocking specific achievements (like "Early Adopter") assigns special roles (e.g., "Veteran").
+The app currently uses a simulation (`services/discordConfig.ts` & `services/mockBackend.ts`) to demonstrate role assignment.
 
-You can view these roles in the **Profile -> Settings** tab after logging in.
+**To make this work in Production with a Real Backend:**
+
+You cannot assign Discord roles purely from the frontend. You must use a **Supabase Edge Function** (or a Node.js server) that holds your Discord Bot Token.
+
+1.  **Create a Discord Bot:**
+    *   Go to Discord Developer Portal -> Bot -> Add Bot.
+    *   Copy the **Token**.
+    *   Invite the bot to your "Official Server" with `Manage Roles` permission.
+
+2.  **Create a Supabase Edge Function:**
+    ```bash
+    supabase functions new discord-role-sync
+    ```
+
+3.  **Add the Code (example):**
+    ```typescript
+    // supabase/functions/discord-role-sync/index.ts
+    import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+
+    const DISCORD_BOT_TOKEN = Deno.env.get('DISCORD_BOT_TOKEN')!;
+    const GUILD_ID = "YOUR_OFFICIAL_GUILD_ID";
+
+    serve(async (req) => {
+      const { userId, roles } = await req.json(); // userId is the Discord User ID
+
+      // Loop through roles and call Discord API
+      for (const roleId of roles) {
+        await fetch(`https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}/roles/${roleId}`, {
+            method: 'PUT',
+            headers: {
+                Authorization: `Bot ${DISCORD_BOT_TOKEN}`
+            }
+        });
+      }
+
+      return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" } });
+    })
+    ```
+
+4.  **Connect Client to Backend:**
+    Update `services/discordConfig.ts` to call this function:
+    ```typescript
+    await supabase.functions.invoke('discord-role-sync', { body: { userId, roles } });
+    ```
 
 ## 🛠️ Tech Stack
 

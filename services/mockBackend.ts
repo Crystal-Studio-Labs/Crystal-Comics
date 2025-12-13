@@ -1,4 +1,5 @@
 import { Manga, Chapter, User, SubscriptionTier, Comment, HistoryEntry } from '../types';
+import { DISCORD_CONFIG, syncRolesWithBot } from './discordConfig';
 
 // --- INITIAL SEED DATA ---
 const INITIAL_MANGA: Manga[] = [
@@ -277,39 +278,48 @@ export const getUser = async (): Promise<User> => {
  * Updates the user profile and synchronizes roles based on:
  * 1. Subscription Tier (e.g., Knight -> 'Crystal Knight' role)
  * 2. Achievements (e.g., 'Veteran' role)
+ * 
+ * NOTE: This now uses DISCORD_CONFIG to map to specific Server Role IDs
  */
 export const updateUserProfile = async (user: User): Promise<User> => {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 300));
 
-    // Calculate Roles
-    const roles = new Set(user.discord.roles || []);
+    // Role Calculation Logic
+    const roleIdsToSync: string[] = [];
+    const displayRoles: string[] = []; // For UI display purposes only
 
-    // Remove old tier roles to ensure accuracy
-    roles.delete('Crystal Knight');
-    roles.delete('Sovereign');
-
-    // Add roles based on current subscription
+    // 1. Subscription Roles
     if (user.subscriptionTier === 'Knight') {
-        roles.add('Crystal Knight');
+        roleIdsToSync.push(DISCORD_CONFIG.ROLES.TIER_KNIGHT);
+        displayRoles.push('Crystal Knight');
     } else if (user.subscriptionTier === 'Sovereign') {
-        roles.add('Crystal Knight'); // Sovereign includes Knight perks
-        roles.add('Sovereign');
+        roleIdsToSync.push(DISCORD_CONFIG.ROLES.TIER_KNIGHT);
+        roleIdsToSync.push(DISCORD_CONFIG.ROLES.TIER_SOVEREIGN);
+        displayRoles.push('Crystal Knight');
+        displayRoles.push('Sovereign');
     }
 
-    // Add roles based on achievements (Mock Logic)
+    // 2. Achievement Roles
     if (user.achievements.some(a => a.id === '1' && a.unlockedAt)) {
-        roles.add('Veteran');
+        roleIdsToSync.push(DISCORD_CONFIG.ROLES.ACHIEVEMENT_VETERAN);
+        displayRoles.push('Veteran');
     }
     if (user.level >= 50) {
-        roles.add('Ascended');
+        roleIdsToSync.push(DISCORD_CONFIG.ROLES.ACHIEVEMENT_Ascended);
+        displayRoles.push('Ascended');
+    }
+
+    // 3. Sync with "Official Server" via Mock Bot
+    if (user.discord.connected) {
+        await syncRolesWithBot(user.id, roleIdsToSync, DISCORD_CONFIG.OFFICIAL_GUILD_ID);
     }
 
     const updatedUser = {
         ...user,
         discord: {
             ...user.discord,
-            roles: Array.from(roles)
+            roles: displayRoles
         }
     };
 

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Sword, Shield, Brain, Sparkles, Crown, Zap, Settings, LogOut, Bell, Award, Layout, ChevronRight, Edit2, X, CreditCard, Check, RefreshCw, Mail, Lock, Unlock, HelpCircle, Moon, Sun, Code, LayoutDashboard } from 'lucide-react';
+import { Sword, Shield, Brain, Sparkles, Crown, Zap, Settings, LogOut, Bell, Award, Layout, ChevronRight, Edit2, X, CreditCard, Check, RefreshCw, Mail, Lock, Unlock, HelpCircle, Moon, Sun, Code, LayoutDashboard, ExternalLink } from 'lucide-react';
 import { User, SubscriptionTier } from '../types';
 import { useNavigate, Link } from 'react-router-dom';
 import { updateUserProfile, syncDiscordStatus } from '../services/mockBackend';
+import { DISCORD_CONFIG } from '../services/discordConfig';
 
 const iconMap: Record<string, any> = {
     Sword, Shield, Brain, Sparkles, Award, Zap, Heart: Award, MessageSquare: Layout, Moon, Sun, Code
@@ -170,17 +171,18 @@ const Profile: React.FC = () => {
                           <div>
                               <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Sync & Connections</h4>
                               <div className="space-y-3">
-                                  <div className="flex items-center justify-between bg-black/30 p-4 rounded-xl border border-white/5">
+                                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-black/30 p-4 rounded-xl border border-white/5 gap-4">
                                       <div className="flex items-center gap-3">
                                           <div className="bg-[#5865F2]/20 p-2 rounded-lg text-[#5865F2]"><RefreshCw size={20} className={syncing ? 'animate-spin' : ''} /></div>
                                           <div>
                                               <div className="font-bold text-white flex items-center gap-2">
-                                                  Discord Sync 
-                                                  {user.discord.connected && <span className="text-[10px] bg-green-900/40 text-green-400 px-2 rounded border border-green-500/20">Active</span>}
+                                                  {DISCORD_CONFIG.OFFICIAL_GUILD_NAME}
+                                                  {user.discord.connected && <span className="text-[10px] bg-green-900/40 text-green-400 px-2 rounded border border-green-500/20">Synced</span>}
                                               </div>
                                               <div className="text-xs text-gray-500">
-                                                  {user.discord.connected ? `Connected as ${user.discord.username}` : 'Sync roles and reading status'}
+                                                  {user.discord.connected ? `Connected as ${user.discord.username}` : 'Connect to sync subscription roles'}
                                               </div>
+                                              
                                               {/* Display Active Roles */}
                                               {user.discord.roles && user.discord.roles.length > 0 && (
                                                   <div className="flex flex-wrap gap-1 mt-2">
@@ -193,13 +195,24 @@ const Profile: React.FC = () => {
                                               )}
                                           </div>
                                       </div>
-                                      <button 
-                                        onClick={handleDiscordSync}
-                                        disabled={syncing}
-                                        className={`px-4 py-2 rounded-lg font-bold text-xs transition ${user.discord.connected ? 'bg-white/5 hover:bg-white/10 text-white' : 'bg-[#5865F2] hover:bg-[#4752c4] text-white'}`}
-                                      >
-                                          {syncing ? 'Syncing...' : (user.discord.connected ? 'Refresh' : 'Connect')}
-                                      </button>
+                                      
+                                      <div className="flex gap-2 self-end md:self-center">
+                                          <a 
+                                            href={DISCORD_CONFIG.INVITE_URL} 
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="px-4 py-2 rounded-lg font-bold text-xs bg-white/5 hover:bg-white/10 text-gray-300 border border-white/5 flex items-center gap-2"
+                                          >
+                                              Join Server <ExternalLink size={12} />
+                                          </a>
+                                          <button 
+                                            onClick={handleDiscordSync}
+                                            disabled={syncing}
+                                            className={`px-4 py-2 rounded-lg font-bold text-xs transition ${user.discord.connected ? 'bg-white/5 hover:bg-white/10 text-white' : 'bg-[#5865F2] hover:bg-[#4752c4] text-white'}`}
+                                          >
+                                              {syncing ? 'Syncing...' : (user.discord.connected ? 'Refresh Roles' : 'Connect')}
+                                          </button>
+                                      </div>
                                   </div>
 
                                   <div className="flex items-center justify-between bg-black/30 p-4 rounded-xl border border-white/5">
