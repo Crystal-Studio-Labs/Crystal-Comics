@@ -93,7 +93,7 @@ const Comments: React.FC<CommentsProps> = ({ mangaId }) => {
                             <img src={comment.avatarUrl} className="w-12 h-12 rounded-full border border-white/10" alt={comment.username} />
                             <div className="flex-1">
                                 <div className="flex items-center justify-between mb-2">
-                                    <h4 className="font-bold text-white text-sm">{comment.username}</h4>
+                                    <h4 className="font-bold text-white text-sm">{comment.displayName || comment.username}</h4>
                                     <span className="text-xs text-gray-500">{comment.timestamp}</span>
                                 </div>
                                 <p className="text-gray-300 text-sm leading-relaxed mb-4">{comment.content}</p>

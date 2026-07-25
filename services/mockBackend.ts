@@ -1,5 +1,7 @@
 import { Manga, Chapter, User, SubscriptionTier, Comment, HistoryEntry } from '../types';
 import { DISCORD_CONFIG, syncRolesWithBot } from './discordConfig';
+import { isRealDbAvailable, fetchAllMangaFromDb } from './dbService';
+import { getChapterImageUrls } from './storageService';
 
 // --- INITIAL SEED DATA ---
 const INITIAL_MANGA: Manga[] = [
@@ -350,10 +352,7 @@ export const getChapterImages = async (mangaId: string, chapterId: string, quali
     const user = getStorageUser();
     const isPremium = user && (user.subscriptionTier === 'Knight' || user.subscriptionTier === 'Sovereign');
     const effectiveQuality = quality || (isPremium ? 'HD' : 'SD');
-    const dimensions = effectiveQuality === 'HD' ? '1600x2400' : '800x1200';
-    const qualityLabel = effectiveQuality === 'HD' ? 'Ultra+HD' : 'Standard';
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise(resolve => setTimeout(resolve, 200));
     
-    // Simulate real manga panels with placeholders
-    return Array.from({ length: 8 }, (_, i) => `https://placehold.co/${dimensions}/111/444?text=${qualityLabel}+Panel+${i + 1}`);
+    return getChapterImageUrls(mangaId, chapterId, 8, effectiveQuality);
 };

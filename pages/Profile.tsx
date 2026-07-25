@@ -310,7 +310,7 @@ const Profile: React.FC = () => {
                   <div>
                     <div className="flex flex-col md:flex-row items-center gap-4 mb-2 justify-center md:justify-start">
                         <h1 className={`text-3xl md:text-5xl font-black tracking-tight ${tierStyles.nameColor}`}>
-                            {user.username}
+                            {user.displayName || user.username}
                         </h1>
                         
                         {/* Subscription Badge */}
@@ -322,9 +322,11 @@ const Profile: React.FC = () => {
                         </span>
                     </div>
                     <p className="text-gray-400 text-sm font-medium flex items-center justify-center md:justify-start gap-2">
-                        Member since {user.joinDate}
+                        <span className="text-purple-400 font-bold">@{user.username}</span>
                         <span className="w-1 h-1 rounded-full bg-gray-600"></span>
-                        <span className="text-purple-400">{user.rank} Hunter</span>
+                        <span>Member since {user.joinDate}</span>
+                        <span className="w-1 h-1 rounded-full bg-gray-600"></span>
+                        <span className="text-cyan-400 font-semibold">{user.rank} Hunter</span>
                     </p>
                   </div>
                   

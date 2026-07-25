@@ -1,4 +1,3 @@
-
 export interface Chapter {
   id: string;
   number: number;
@@ -11,6 +10,7 @@ export interface Comment {
     id: string;
     userId: string;
     username: string;
+    displayName?: string;
     avatarUrl: string;
     content: string;
     timestamp: string;
@@ -31,7 +31,6 @@ export interface Manga {
   author: string;
   chapters: Chapter[];
   views: string;
-  // New UI fields
   match?: number;
   year?: number;
   rank?: number;
@@ -50,10 +49,12 @@ export interface Achievement {
 
 export type SubscriptionTier = 'Squire' | 'Knight' | 'Sovereign';
 export type UserRole = 'User' | 'Moderator' | 'Admin';
+export type BookmarkShelf = 'Reading' | 'Plan to Read' | 'Completed' | 'Favorites';
 
 export interface DiscordState {
     connected: boolean;
     username?: string;
+    displayName?: string;
     id?: string;
     roles: string[]; // e.g. ["Booster", "Server Moderator"]
 }
@@ -62,17 +63,19 @@ export interface HistoryEntry {
     mangaId: string;
     chapterId: string;
     timestamp: number;
+    scrollPercent?: number;
 }
 
 export interface User {
   id: string;
   username: string;
+  displayName?: string;
   role: UserRole;
   avatarUrl: string;
   discriminator: string;
   level: number;
-  rank: string; // This is the gameplay rank (e.g. S-Rank)
-  subscriptionTier: SubscriptionTier; // This is the paid tier
+  rank: string; // Gameplay rank (e.g. S-Rank)
+  subscriptionTier: SubscriptionTier; // Paid tier
   discord: DiscordState;
   xp: number;
   maxXp: number;

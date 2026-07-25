@@ -40,20 +40,22 @@ const AuthHandler = () => {
                 const discordIdentity = session.user.identities?.find(id => id.provider === 'discord');
                 const discordData = discordIdentity?.identity_data;
 
-                // Create a "Hybrid" user combining Real Auth data with our App structure
-                const existingData = localStorage.getItem('crystal_user');
-                const prevUser = existingData ? JSON.parse(existingData) : MOCK_USER;
+                // Extract Discord Display Name (Global Name) and Username
+                const discordUsername = discordData?.preferred_username || discordData?.name || session.user.email?.split('@')[0] || 'Hunter';
+                const discordDisplayName = discordData?.global_name || discordData?.full_name || discordData?.name || discordUsername;
+                const discordAvatar = discordData?.avatar_url || discordData?.picture || prevUser.avatarUrl;
 
                 let newUser: User = {
-                    ...prevUser, // Keep existing XP/Bookmarks if they exist locally
+                    ...prevUser,
                     id: session.user.id,
-                    username: discordData?.full_name || discordData?.name || session.user.email?.split('@')[0] || 'Hunter',
-                    avatarUrl: discordData?.avatar_url || discordData?.picture || prevUser.avatarUrl,
-                    email: session.user.email,
+                    username: discordUsername,
+                    displayName: discordDisplayName,
+                    avatarUrl: discordAvatar,
                     discriminator: '0000', 
                     discord: {
                         connected: true,
-                        username: discordData?.name,
+                        username: discordUsername,
+                        displayName: discordDisplayName,
                         id: discordIdentity?.id,
                         roles: [] 
                     }
