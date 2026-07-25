@@ -4,6 +4,8 @@
 
 **A Modern, Production-Ready, Self-Hostable Manga & Manhwa Scanlation Platform Template**
 
+[![Built with AI](https://img.shields.io/badge/Built_with-AI_%2F_Vibe_Coded-8A2BE2?style=for-the-badge&logo=openai&logoColor=white)](#-built-with-ai--vibe-coded)
+[![Powered by Antigravity AI](https://img.shields.io/badge/Powered_by-Antigravity_AI-FF4500?style=for-the-badge&logo=google&logoColor=white)](#-built-with-ai--vibe-coded)
 [![React](https://img.shields.io/badge/React-18.2-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.4-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.1-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
@@ -17,6 +19,18 @@
 ---
 
 </div>
+
+## 🤖 Built with AI & Vibe Coded
+
+> **✨ 100% Vibe Coded with AI Engineering**
+
+**Crystal Comics** was architected, written, styled, and deployed using **Google Antigravity AI** in a pure **Vibe Coding** workflow!
+
+- ⚡ **Autonomous Architecture**: Full system design, dual-DB failover engines, and Cloudflare R2 storage integration generated iteratively via prompt engineering.
+- 🎨 **Vibe Aesthetics**: Handcrafted obsidian glassmorphism UI, custom CSS animations, and responsive control docks tailored for manhwa/manga scanlation platforms.
+- 🛠️ **Zero-Error Build Pipeline**: Complete TypeScript type safety, automated verification (`npm run build`), and GitHub CI readiness out-of-the-box.
+
+---
 
 ## 🌟 Overview
 
