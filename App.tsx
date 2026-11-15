@@ -10,10 +10,11 @@ import Read from './pages/Read';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Admin from './pages/Admin';
+import Navbar from './components/Navbar';
 import Logo from './components/Logo';
 import Footer from './components/Footer';
 import { supabase } from './services/supabase';
-import { MOCK_USER, updateUserProfile } from './services/mockBackend';
+import { MOCK_USER, getUser, updateUserProfile } from './services/mockBackend';
 import { User } from './types';
 
 const ScrollToTop = () => {
@@ -36,6 +37,7 @@ const AuthHandler = () => {
                 // User just logged in via Discord. 
                 // We need to map Supabase data to our App's User format
                 // and save it to localStorage so the MockBackend continues to work.
+                const prevUser = await getUser();
                 
                 const discordIdentity = session.user.identities?.find(id => id.provider === 'discord');
                 const discordData = discordIdentity?.identity_data;
@@ -90,16 +92,12 @@ const AppContent: React.FC = () => {
     const hideNav = isReading || isLogin;
 
     return (
-        <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-purple-500/30 flex flex-col">
+        <div className="min-h-screen bg-[#13111A] text-white font-sans selection:bg-[#913FE2]/30 selection:text-white flex flex-col">
             <ScrollToTop />
             <AuthHandler />
             
-            {/* Top Navigation Overlay (Logo) */}
-            {!hideNav && (
-                <div className="fixed top-0 left-0 p-6 z-40">
-                    <Logo />
-                </div>
-            )}
+            {/* AsuraScans Top Navigation */}
+            {!hideNav && <Navbar />}
 
             <main className="flex-grow">
                 <Routes>

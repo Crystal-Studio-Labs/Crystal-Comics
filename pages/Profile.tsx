@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Sword, Shield, Brain, Sparkles, Crown, Zap, Settings, LogOut, Bell, Award, Layout, ChevronRight, Edit2, X, CreditCard, Check, RefreshCw, Mail, Lock, Unlock, HelpCircle, Moon, Sun, Code, LayoutDashboard, ExternalLink } from 'lucide-react';
+import { Sword, Shield, Brain, Sparkles, Crown, Zap, Settings, LogOut, Bell, Award, Layout, ChevronRight, Edit2, X, CreditCard, Check, RefreshCw, Mail, Lock, Unlock, HelpCircle, Moon, Sun, Code, LayoutDashboard, ExternalLink, Coins } from 'lucide-react';
 import { User, SubscriptionTier } from '../types';
 import { useNavigate, Link } from 'react-router-dom';
-import { updateUserProfile, syncDiscordStatus } from '../services/mockBackend';
+import { updateUserProfile, syncDiscordStatus, getStorageUser } from '../services/mockBackend';
 import { DISCORD_CONFIG } from '../services/discordConfig';
 
 const iconMap: Record<string, any> = {
@@ -379,6 +379,38 @@ const Profile: React.FC = () => {
           <div className="animate-slide-up">
             {activeTab === 'overview' && (
                 <div>
+                     {/* VIRTUAL CURRENCY WALLET (Asura Dual-Currency Model) */}
+                     <div className="bg-[#11111a] border border-purple-500/20 rounded-3xl p-6 mb-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-purple-600/30">
+                                <Coins size={24} />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-black text-white flex items-center gap-2">
+                                    Hunter Currencies
+                                </h3>
+                                <p className="text-gray-400 text-xs">Used to unlock individual early-access chapters</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-4 w-full sm:w-auto justify-end">
+                            <div className="bg-black/50 border border-white/10 px-5 py-2.5 rounded-2xl text-center">
+                                <div className="text-[10px] font-bold text-gray-400 uppercase">Tokens</div>
+                                <div className="text-lg font-black text-purple-400">{user.tokens ?? 0}</div>
+                            </div>
+                            <div className="bg-black/50 border border-white/10 px-5 py-2.5 rounded-2xl text-center">
+                                <div className="text-[10px] font-bold text-gray-400 uppercase">Shards</div>
+                                <div className="text-lg font-black text-cyan-400">{user.shards ?? 0}</div>
+                            </div>
+                            <Link 
+                                to="/guild"
+                                className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-4 py-3 rounded-xl transition shadow-lg shadow-purple-600/20 whitespace-nowrap"
+                            >
+                                Get More
+                            </Link>
+                        </div>
+                     </div>
+
                      <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                         <Zap className="text-yellow-400" /> Soul Stats
                      </h2>

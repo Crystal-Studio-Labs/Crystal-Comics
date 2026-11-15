@@ -28,13 +28,13 @@ const Library: React.FC = () => {
     ];
 
     return (
-        <div className="pt-24 px-6 max-w-7xl mx-auto pb-32 animate-fade-in">
-            <h1 className="text-3xl font-black text-white mb-8 flex items-center gap-2">
-                <Bookmark className="text-purple-500" /> My Library
+        <div className="pt-8 px-4 md:px-6 max-w-[1360px] mx-auto pb-32 animate-fade-in">
+            <h1 className="text-2xl md:text-3xl font-black text-white mb-6 flex items-center gap-2">
+                <Bookmark className="text-[#913FE2]" /> My Library
             </h1>
 
             {/* Tabs */}
-            <div className="flex border-b border-white/10 mb-8">
+            <div className="flex border-b border-[#24212B] mb-8">
                 {tabs.map(tab => {
                     const Icon = tab.icon;
                     const isActive = activeTab === tab.id;
@@ -42,9 +42,9 @@ const Library: React.FC = () => {
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as any)}
-                            className={`flex items-center gap-2 px-6 py-4 font-bold text-sm transition-all border-b-2 ${
+                            className={`flex items-center gap-2 px-6 py-3 font-bold text-sm transition-all border-b-2 ${
                                 isActive 
-                                ? 'border-purple-500 text-white' 
+                                ? 'border-[#913FE2] text-white shadow-[0_4px_12px_rgba(145,63,226,0.3)]' 
                                 : 'border-transparent text-gray-500 hover:text-gray-300'
                             }`}
                         >

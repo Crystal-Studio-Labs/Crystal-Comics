@@ -1,7 +1,7 @@
-import { Manga, Chapter, User, SubscriptionTier, Comment, HistoryEntry } from '../types';
+import { Manga, Chapter, User, SubscriptionTier, Comment, HistoryEntry, ChapterPanel } from '../types';
 import { DISCORD_CONFIG, syncRolesWithBot } from './discordConfig';
 import { isRealDbAvailable, fetchAllMangaFromDb } from './dbService';
-import { getChapterImageUrls } from './storageService';
+import { getChapterImageUrls, getChapterPanels } from './storageService';
 
 // --- INITIAL SEED DATA ---
 const INITIAL_MANGA: Manga[] = [
@@ -25,10 +25,22 @@ const INITIAL_MANGA: Manga[] = [
       number: 20 - i,
       title: `Episode ${20 - i}`,
       releaseDate: i < 2 ? '1 hour ago' : '1 week ago',
-      isPremium: i < 2 
+      isPremium: i < 2,
+      tokenPrice: 50
     })),
     comments: [
-        { id: 'c1', userId: 'u2', username: 'Hunter123', avatarUrl: 'https://placehold.co/100/333/FFF?text=H', content: 'The art is absolutely insane!', timestamp: '2 hours ago', likes: 45, mangaId: '1' }
+        { 
+          id: 'c1', 
+          userId: 'u2', 
+          username: 'Hunter123', 
+          avatarUrl: 'https://placehold.co/100/333/FFF?text=H', 
+          content: 'The art is absolutely insane! Especially the battle at the start [spoiler]Suho awakens his shadow beast early[/spoiler]!', 
+          timestamp: '2 hours ago', 
+          likes: 45, 
+          mangaId: '1',
+          reactions: { '👍': 32, '❤️': 12, '😮': 5 },
+          userReaction: '👍'
+        }
     ]
   },
   {
@@ -51,7 +63,8 @@ const INITIAL_MANGA: Manga[] = [
       number: 175 - i,
       title: `Chapter ${175 - i}`,
       releaseDate: '1 week ago',
-      isPremium: false
+      isPremium: false,
+      tokenPrice: 50
     })).slice(0, 10)
   },
   {
@@ -73,7 +86,8 @@ const INITIAL_MANGA: Manga[] = [
       number: 50 - i,
       title: `Episode ${50 - i}`,
       releaseDate: i < 3 ? '2 hours ago' : '5 days ago',
-      isPremium: i < 3
+      isPremium: i < 3,
+      tokenPrice: 50
     }))
   }
 ];
@@ -87,6 +101,9 @@ export const MOCK_USER: User = {
   level: 42,
   rank: "S-Rank",
   subscriptionTier: 'Squire', 
+  tokens: 150, // Virtual currency for comic chapter early access
+  shards: 25,  // Virtual currency for novel chapters
+  unlockedChapters: [],
   discord: {
       connected: false,
       roles: []
@@ -120,9 +137,17 @@ const setStorageManga = (manga: Manga[]) => {
     localStorage.setItem('crystal_db_manga', JSON.stringify(manga));
 };
 
-const getStorageUser = (): User => {
+export const getStorageUser = (): User => {
     const stored = localStorage.getItem('crystal_user');
-    return stored ? JSON.parse(stored) : MOCK_USER;
+    if (!stored) return MOCK_USER;
+    const u = JSON.parse(stored);
+    return {
+        ...MOCK_USER,
+        ...u,
+        tokens: u.tokens !== undefined ? u.tokens : 150,
+        shards: u.shards !== undefined ? u.shards : 25,
+        unlockedChapters: Array.isArray(u.unlockedChapters) ? u.unlockedChapters : []
+    };
 };
 
 const setStorageUser = (user: User) => {
@@ -233,6 +258,40 @@ export const addComment = async (mangaId: string, content: string): Promise<Comm
     allManga[mangaIndex].comments!.unshift(newComment);
     setStorageManga(allManga);
     return newComment;
+};
+
+/**
+ * Toraka-style Emoji Reaction Toggle Engine:
+ * Allows readers to react with 👍, ❤️, 😂, 😮, 😠, 😢 to comments
+ */
+export const reactToComment = async (mangaId: string, commentId: string, emoji: string): Promise<Comment | null> => {
+    const allManga = getStorageManga();
+    const mangaIndex = allManga.findIndex(m => m.id === mangaId);
+    if (mangaIndex === -1 || !allManga[mangaIndex].comments) return null;
+
+    const comment = allManga[mangaIndex].comments!.find(c => c.id === commentId);
+    if (!comment) return null;
+
+    if (!comment.reactions) {
+        comment.reactions = { '👍': 0, '❤️': 0, '😂': 0, '😮': 0, '😠': 0, '😢': 0 };
+    }
+
+    // Toggle reaction
+    if (comment.userReaction === emoji) {
+        // Remove existing reaction
+        comment.reactions[emoji] = Math.max(0, (comment.reactions[emoji] || 1) - 1);
+        comment.userReaction = undefined;
+    } else {
+        // If had a previous reaction, decrement it
+        if (comment.userReaction && comment.reactions[comment.userReaction]) {
+            comment.reactions[comment.userReaction] = Math.max(0, comment.reactions[comment.userReaction] - 1);
+        }
+        comment.reactions[emoji] = (comment.reactions[emoji] || 0) + 1;
+        comment.userReaction = emoji;
+    }
+
+    setStorageManga(allManga);
+    return comment;
 };
 
 // --- ADMIN / WRITE FUNCTIONS ---
@@ -349,10 +408,75 @@ export const syncDiscordStatus = async (user: User): Promise<User> => {
 };
 
 export const getChapterImages = async (mangaId: string, chapterId: string, quality?: 'HD' | 'SD'): Promise<string[]> => {
+    const panels = await getChapterPanelData(mangaId, chapterId, quality);
+    return panels.map(p => p.url);
+};
+
+/**
+ * Pre-computed Layout Dimension Resolver for Zero-CLS 'rea' Reader Viewport:
+ * Supplies exact width, height, and CSS aspectRatio for layout preservation
+ */
+export const getChapterPanelData = async (mangaId: string, chapterId: string, quality?: 'HD' | 'SD'): Promise<ChapterPanel[]> => {
     const user = getStorageUser();
     const isPremium = user && (user.subscriptionTier === 'Knight' || user.subscriptionTier === 'Sovereign');
     const effectiveQuality = quality || (isPremium ? 'HD' : 'SD');
     await new Promise(resolve => setTimeout(resolve, 200));
     
-    return getChapterImageUrls(mangaId, chapterId, 8, effectiveQuality);
+    return getChapterPanels(mangaId, chapterId, 8, effectiveQuality);
+};
+
+/**
+ * Microtransaction Chapter Unlock Engine (Asura Tokens Model):
+ * Allows readers to spend 50 tokens to permanently unlock early access chapters
+ */
+export const unlockChapterWithTokens = async (
+    mangaId: string, 
+    chapterId: string, 
+    tokenCost: number = 50
+): Promise<{ success: boolean; error?: string; user: User }> => {
+    const user = getStorageUser();
+    const unlockKey = `${mangaId}:${chapterId}`;
+
+    if (user.unlockedChapters && user.unlockedChapters.includes(unlockKey)) {
+        return { success: true, user };
+    }
+
+    if (user.tokens < tokenCost) {
+        return { 
+            success: false, 
+            error: `Insufficient Tokens. You have ${user.tokens} tokens, but ${tokenCost} are required.`, 
+            user 
+        };
+    }
+
+    const updatedUser: User = {
+        ...user,
+        tokens: user.tokens - tokenCost,
+        unlockedChapters: [...(user.unlockedChapters || []), unlockKey]
+    };
+
+    setStorageUser(updatedUser);
+    return { success: true, user: updatedUser };
+};
+
+/**
+ * Daily Virtual Currency Claim Engine:
+ * Awards +25 Tokens per 24-hour cycle to drive daily active retention
+ */
+export const claimDailyTokens = async (): Promise<{ success: boolean; tokensClaimed: number; user: User; error?: string }> => {
+    const user = getStorageUser();
+    const today = new Date().toISOString().split('T')[0];
+
+    if (user.lastClaimDate === today) {
+        return { success: false, tokensClaimed: 0, user, error: 'Daily reward already claimed today. Come back tomorrow!' };
+    }
+
+    const updatedUser: User = {
+        ...user,
+        tokens: user.tokens + 25,
+        lastClaimDate: today
+    };
+
+    setStorageUser(updatedUser);
+    return { success: true, tokensClaimed: 25, user: updatedUser };
 };

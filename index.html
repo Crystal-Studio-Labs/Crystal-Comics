@@ -4,6 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CrystalScans</title>
+    <!-- Edge Pre-warming & DNS Prefetching (AsuraScans-style) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://placehold.co" crossorigin />
+    <link rel="dns-prefetch" href="https://placehold.co" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <script>
@@ -14,13 +19,26 @@
               sans: ['Outfit', 'sans-serif'],
             },
             colors: {
+              asura: {
+                bg: '#13111A',
+                card: '#1C1924',
+                border: '#24212B',
+                hover: '#1D1B22',
+                purple: '#913FE2',
+                purpleHover: '#7c35c2',
+                purpleDark: '#5a1f78',
+                flame: '#FF4500',
+                cyan: '#04C9FE',
+                discord: '#5865F2',
+                muted: '#888888',
+              },
               crystal: {
                 900: '#0f172a',
                 800: '#1e293b',
                 glass: 'rgba(255, 255, 255, 0.05)',
                 border: 'rgba(255, 255, 255, 0.1)',
-                accent: '#a855f7', // Purple-500
-                accentHover: '#9333ea', // Purple-600
+                accent: '#913FE2', // Asura Purple
+                accentHover: '#7c35c2',
               }
             },
             animation: {
@@ -59,7 +77,7 @@
     </script>
     <style>
       body {
-        background-color: #050505;
+        background-color: #13111A;
         color: #e2e8f0;
         overflow-x: hidden;
       }

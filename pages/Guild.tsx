@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Check, X, Shield, Crown, Sword, CreditCard, Sparkles, ExternalLink, Zap } from 'lucide-react';
+import { Check, X, Shield, Crown, Sword, CreditCard, Sparkles, ExternalLink, Zap, Coins } from 'lucide-react';
 import { User, SubscriptionTier } from '../types';
-import { updateUserProfile } from '../services/mockBackend';
+import { updateUserProfile, claimDailyTokens, getStorageUser } from '../services/mockBackend';
 
 const Guild: React.FC = () => {
     const [user, setUser] = useState<User | null>(null);
     const [upgradeLoading, setUpgradeLoading] = useState<string | null>(null);
+    const [claimLoading, setClaimLoading] = useState(false);
+    const [claimMessage, setClaimMessage] = useState<string | null>(null);
 
     // Payment Modal State
     const [selectedTierForCheckout, setSelectedTierForCheckout] = useState<SubscriptionTier | null>(null);
@@ -13,11 +15,21 @@ const Guild: React.FC = () => {
     const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('crystal_user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
+        setUser(getStorageUser());
     }, []);
+
+    const handleClaimDaily = async () => {
+        setClaimLoading(true);
+        setClaimMessage(null);
+        const res = await claimDailyTokens();
+        if (res.success) {
+            setUser(res.user);
+            setClaimMessage('🎉 Successfully claimed +25 Tokens!');
+        } else {
+            setClaimMessage(res.error || 'Claim failed');
+        }
+        setClaimLoading(false);
+    };
 
     const handleOpenCheckout = (tier: SubscriptionTier) => {
         setSelectedTierForCheckout(tier);
@@ -80,6 +92,53 @@ const Guild: React.FC = () => {
                     <p className="text-gray-400 text-lg max-w-2xl mx-auto">
                         Join the elite ranks of Crystal Comics. Unlock HD panels, ad-free reading, and automatic Discord role synchronization.
                     </p>
+                </div>
+
+                {/* VIRTUAL CURRENCY TOKEN WALLET & DAILY CLAIM (Asura Hybrid Microcurrency Model) */}
+                <div className="bg-[#0E0E15] border border-purple-500/20 rounded-3xl p-6 md:p-8 mb-12 shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-32 bg-purple-600/5 blur-[100px] rounded-full pointer-events-none" />
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                        <div className="flex items-center gap-5">
+                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-purple-600/30">
+                                <Coins size={32} />
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-3">
+                                    <h3 className="text-xl font-black text-white">Hunter Token Wallet</h3>
+                                    <span className="text-xs bg-purple-900/50 text-purple-300 border border-purple-500/30 font-bold px-2.5 py-0.5 rounded-full">
+                                        Dual-Currency
+                                    </span>
+                                </div>
+                                <p className="text-gray-400 text-xs md:text-sm mt-1 max-w-md">
+                                    Use Tokens to unlock individual Early Access comic chapters (50 tokens each), or use Shards for upcoming novel releases.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-4 w-full md:w-auto justify-end">
+                            <div className="bg-black/40 border border-white/10 px-5 py-3 rounded-2xl text-center min-w-[110px]">
+                                <div className="text-[11px] font-bold text-gray-400 uppercase">Tokens</div>
+                                <div className="text-xl font-black text-purple-400">{user?.tokens ?? 0}</div>
+                            </div>
+                            <div className="bg-black/40 border border-white/10 px-5 py-3 rounded-2xl text-center min-w-[110px]">
+                                <div className="text-[11px] font-bold text-gray-400 uppercase">Shards</div>
+                                <div className="text-xl font-black text-cyan-400">{user?.shards ?? 0}</div>
+                            </div>
+                            <button
+                                onClick={handleClaimDaily}
+                                disabled={claimLoading}
+                                className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:brightness-110 text-white font-bold text-sm px-6 py-4 rounded-2xl transition shadow-lg shadow-purple-600/25 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                            >
+                                <Sparkles size={16} /> {claimLoading ? 'Claiming...' : 'Claim +25 Daily Tokens'}
+                            </button>
+                        </div>
+                    </div>
+
+                    {claimMessage && (
+                        <div className="mt-4 pt-4 border-t border-white/5 text-xs text-center font-bold text-purple-300">
+                            {claimMessage}
+                        </div>
+                    )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

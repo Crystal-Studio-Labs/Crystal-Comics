@@ -31,24 +31,66 @@ export const naturalSortFiles = (files: File[]): File[] => {
   return [...files].sort((a, b) => collator.compare(a.name, b.name));
 };
 
+import { ChapterPanel } from '../types';
+
+/**
+ * Returns pre-calculated ChapterPanel metadata (Zero-CLS Layout Engine)
+ * Directly models AsuraScans' pre-computed dimensions architecture.
+ */
+export const getChapterPanels = (
+  mangaId: string, 
+  chapterId: string, 
+  imageCount: number = 8, 
+  quality: 'HD' | 'SD' = 'HD'
+): ChapterPanel[] => {
+  const provider = getStorageProvider();
+  const width = quality === 'HD' ? 900 : 800;
+  // Simulating realistic webtoon merged vertical strips (e.g. 900 x 12000-14000px)
+  const baseHeight = quality === 'HD' ? 2400 : 1200;
+
+  if (provider === 'r2' && CDN_BASE_URL) {
+    return Array.from({ length: imageCount }, (_, i) => {
+      const panelHeight = i % 2 === 0 ? baseHeight : Math.round(baseHeight * 1.25);
+      return {
+        url: `${CDN_BASE_URL}/chapters/${mangaId}/${chapterId}/panel_${String(i + 1).padStart(2, '0')}.webp`,
+        width,
+        height: panelHeight,
+        aspectRatio: `${width} / ${panelHeight}`
+      };
+    });
+  }
+
+  // Fallback placeholder images with pre-computed dimension metadata
+  const dimensions = quality === 'HD' ? '1600x2400' : '800x1200';
+  const label = quality === 'HD' ? 'Ultra+HD' : 'Standard';
+  return Array.from({ length: imageCount }, (_, i) => {
+    const h = quality === 'HD' ? 2400 : 1200;
+    const w = quality === 'HD' ? 1600 : 800;
+    return {
+      url: `https://placehold.co/${dimensions}/111/444?text=${label}+Panel+${i + 1}`,
+      width: w,
+      height: h,
+      aspectRatio: `${w} / ${h}`
+    };
+  });
+};
+
 /**
  * Returns formatted CDN image panel URLs for a given manga chapter.
  */
 export const getChapterImageUrls = (mangaId: string, chapterId: string, imageCount: number = 8, quality: 'HD' | 'SD' = 'HD'): string[] => {
-  const provider = getStorageProvider();
+  return getChapterPanels(mangaId, chapterId, imageCount, quality).map(p => p.url);
+};
 
-  if (provider === 'r2' && CDN_BASE_URL) {
-    return Array.from({ length: imageCount }, (_, i) => 
-      `${CDN_BASE_URL}/chapters/${mangaId}/${chapterId}/panel_${String(i + 1).padStart(2, '0')}.webp`
-    );
-  }
-
-  // Fallback placeholder images for local testing
-  const dimensions = quality === 'HD' ? '1600x2400' : '800x1200';
-  const label = quality === 'HD' ? 'Ultra+HD' : 'Standard';
-  return Array.from({ length: imageCount }, (_, i) => 
-    `https://placehold.co/${dimensions}/111/444?text=${label}+Panel+${i + 1}`
-  );
+/**
+ * Asura-style Responsive Cover Image URL Generator
+ * Automatically maps to size-specific edge thumbnails (-160.webp, -400.webp)
+ */
+export const getResponsiveCoverUrl = (url: string, size: 160 | 400 | 'full' = 'full'): string => {
+  if (!url || size === 'full') return url || '/images/default-cover.webp';
+  if (!url.includes('.webp') || url.startsWith('https://placehold.co')) return url;
+  const lastDot = url.lastIndexOf('.');
+  return `${url.slice(0, lastDot)}-${size}.webp`;
 };
 
 /**

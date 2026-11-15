@@ -4,8 +4,8 @@ import { MessageCircle, Twitter, Facebook, Mail, ExternalLink } from 'lucide-rea
 
 const Footer: React.FC = () => {
     return (
-        <footer className="bg-[#0a0a0a] border-t border-white/5 pt-16 pb-32">
-            <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
+        <footer className="bg-[#0e0d14] border-t border-[#24212B] pt-16 pb-32">
+            <div className="max-w-[1360px] mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
                 {/* Brand Column */}
                 <div className="col-span-1 md:col-span-1 space-y-6">
                     <Logo size="sm" />
@@ -13,20 +13,17 @@ const Footer: React.FC = () => {
                         CrystalScans is your premier destination for high-quality manhwa and manga translations. Join our community and read the latest chapters first.
                     </p>
                     <div className="flex gap-4">
-                        <a href="#" className="p-2 bg-white/5 rounded-full hover:bg-[#5865F2] hover:text-white transition text-gray-400">
+                        <a href="https://discord.gg" target="_blank" rel="noreferrer" className="p-2 bg-white/5 rounded-full hover:bg-[#5865F2] hover:text-white transition text-gray-400">
                             <MessageCircle size={20} />
                         </a>
-                        <a href="#" className="p-2 bg-white/5 rounded-full hover:bg-blue-400 hover:text-white transition text-gray-400">
+                        <a href="#" className="p-2 bg-white/5 rounded-full hover:bg-[#913FE2] hover:text-white transition text-gray-400">
                             <Twitter size={20} />
-                        </a>
-                        <a href="#" className="p-2 bg-white/5 rounded-full hover:bg-blue-600 hover:text-white transition text-gray-400">
-                            <Facebook size={20} />
                         </a>
                     </div>
                 </div>
 
                 {/* Discord Integration */}
-                <div className="col-span-1 md:col-span-2 bg-[#5865F2]/10 border border-[#5865F2]/20 rounded-2xl p-6 relative overflow-hidden group">
+                <div className="col-span-1 md:col-span-2 bg-[#5865F2]/10 border border-[#5865F2]/30 rounded-2xl p-6 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#5865F2]/20 blur-[60px] rounded-full" />
                     <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
                         <div>
@@ -52,10 +49,10 @@ const Footer: React.FC = () => {
                 <div className="space-y-4">
                     <h4 className="font-bold text-white mb-4">Platform</h4>
                     <ul className="space-y-2 text-sm text-gray-400">
-                        <li><a href="#" className="hover:text-purple-400 transition">Terms of Service</a></li>
-                        <li><a href="#" className="hover:text-purple-400 transition">Privacy Policy</a></li>
-                        <li><a href="#" className="hover:text-purple-400 transition">DMCA</a></li>
-                        <li><a href="#" className="hover:text-purple-400 transition">Contact Us</a></li>
+                        <li><a href="#" className="hover:text-[#913FE2] transition">Terms of Service</a></li>
+                        <li><a href="#" className="hover:text-[#913FE2] transition">Privacy Policy</a></li>
+                        <li><a href="#" className="hover:text-[#913FE2] transition">DMCA Notice</a></li>
+                        <li><a href="#" className="hover:text-[#913FE2] transition">Contact Us</a></li>
                     </ul>
                 </div>
             </div>

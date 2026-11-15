@@ -21,8 +21,8 @@ const FloatingDock: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 animate-enter-dock origin-bottom">
-      <div className="bg-black/90 backdrop-blur-3xl border border-white/10 px-3 py-2 rounded-full shadow-2xl shadow-purple-900/10 flex items-center gap-2 scale-75 md:scale-90">
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 animate-enter-dock origin-bottom lg:hidden">
+      <div className="bg-[#1C1924]/90 backdrop-blur-3xl border border-[#24212B] px-3 py-2 rounded-full shadow-2xl flex items-center gap-2 scale-90">
         {tabs.map((tab) => {
           const active = isActive(tab.path);
           const Icon = tab.icon;

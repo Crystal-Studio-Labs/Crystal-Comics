@@ -115,6 +115,10 @@ export const fetchUserProfileFromDb = async (userId: string): Promise<User | nul
     ],
     achievements: [],
     bookmarks: [],
-    history: []
+    history: [],
+    tokens: data.tokens ?? 150,
+    shards: data.shards ?? 0,
+    unlockedChapters: data.unlocked_chapters ?? [],
+    lastClaimDate: data.last_claim_date
   };
 };

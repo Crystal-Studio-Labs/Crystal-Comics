@@ -55,9 +55,9 @@ const Explore: React.FC = () => {
                         placeholder="Search series..." 
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-[#111] border border-white/10 rounded-full py-3.5 pl-12 pr-4 text-white focus:border-purple-500 focus:outline-none transition-colors shadow-sm"
+                        className="w-full bg-[#1C1924] border border-[#24212B] rounded-full py-3 pl-12 pr-4 text-white focus:border-[#913FE2] focus:outline-none transition-colors shadow-sm text-sm"
                     />
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                 </div>
             </div>
 
@@ -67,10 +67,10 @@ const Explore: React.FC = () => {
                     <button
                         key={genre}
                         onClick={() => setSelectedGenre(genre)}
-                        className={`px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all ${
+                        className={`px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
                             selectedGenre === genre 
-                            ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/40' 
-                            : 'bg-[#111] text-gray-400 hover:bg-[#222] border border-white/5'
+                            ? 'bg-[#913FE2] text-white shadow-[0_0_15px_rgba(145,63,226,0.5)]' 
+                            : 'bg-[#1C1924] text-gray-400 hover:text-white border border-[#24212B] hover:bg-[#24212B]'
                         }`}
                     >
                         {genre}

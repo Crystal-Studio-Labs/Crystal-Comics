@@ -1,9 +1,18 @@
+export interface ChapterPanel {
+  url: string;
+  width: number;
+  height: number;
+  aspectRatio?: string;
+}
+
 export interface Chapter {
   id: string;
   number: number;
   title: string;
   releaseDate: string;
   isPremium?: boolean;
+  tokenPrice?: number; // Cost to unlock chapter using tokens (default 50)
+  panels?: ChapterPanel[];
 }
 
 export interface Comment {
@@ -16,6 +25,9 @@ export interface Comment {
     timestamp: string;
     likes: number;
     mangaId: string;
+    reactions?: Record<string, number>; // e.g. { '👍': 12, '❤️': 8, '😂': 4 }
+    userReaction?: string;
+    hasSpoiler?: boolean;
 }
 
 export interface Manga {
@@ -76,6 +88,10 @@ export interface User {
   level: number;
   rank: string; // Gameplay rank (e.g. S-Rank)
   subscriptionTier: SubscriptionTier; // Paid tier
+  tokens: number; // Virtual currency for unlocking early access comic chapters
+  shards: number; // Virtual currency for novel chapters
+  unlockedChapters: string[]; // Set of "mangaId:chapterId" unlocked via tokens
+  lastClaimDate?: string; // Daily token claim tracking
   discord: DiscordState;
   xp: number;
   maxXp: number;
